@@ -18,7 +18,7 @@ mic_status_label = ct.CTkLabel(root, text="Voice: Listening...", font=("Noto San
 mic_status_label.place(x=25, y=960)
 
 command_log = ct.CTkTextbox(root, width=400, height=700)
-command_log.place(x=450, y=400)
+command_log.place(x=450, y=350)
 command_log.insert("0.0", "Command Log\n")
 command_log.configure(state="disabled")
 
@@ -29,22 +29,21 @@ def handle_voice_command(text):
     command_log.see("end")
     command_log.configure(state="disabled")
 
-def shutdown_app():
-    custom = tk.Toplevel(root)
-    custom.title("Close App")
-    custom.geometry("900x500")  # same width as root for full screen experience
-    custom.configure(bg="#1f1f1f")
-
 def hide_app():
     root.iconify()
 
 def show_app():
+    print("yippe")
     try:
-        root.deiconify()  # Restore if it was iconified (minimized)
-        root.lift()       # Bring to front
-        root.focus_force()  # Grab focus
+        root.deiconify()                 # Unminimize
+        root.update_idletasks()         # Make sure the window manager sees it
+        root.lift()                     # Bring to front
+        root.attributes('-topmost', 1)  # Force on top temporarily
+        root.after(500, lambda: root.attributes('-topmost', 0))  # Restore normal stacking
+        root.geometry(root.geometry())  # Force geometry reset (sometimes helps in GNOME)
     except Exception as e:
         print(f"Failed to show app: {e}")
+
 
 def shutdown_app():
     custom = tk.Toplevel(root)
@@ -182,7 +181,7 @@ alientalk = ct.CTkLabel(
     anchor="w",
     justify="left"
 )
-alientalk.place(x=25, y=700)
+alientalk.place(x=25, y=650)
 
 gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(400, 600))
 gif_label.place(x=25, y=25)
