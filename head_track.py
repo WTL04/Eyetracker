@@ -39,11 +39,11 @@ class HeadTracker:
             # Draw circles for both eyes for visualization
             r_x = int(r_cx * frame_w)
             r_y = int(r_cy * frame_h)
-            #cv2.circle(frame, (r_x, r_y), 15, (0, 0, 255), -1)
+            cv2.circle(frame, (r_x, r_y), 15, (0, 0, 255), -1)
     
             l_x = int(l_cx * frame_w)
             l_y = int(l_cy * frame_h)
-            #cv2.circle(frame, (l_x, l_y), 15, (0, 0, 255), -1)
+            cv2.circle(frame, (l_x, l_y), 15, (0, 0, 255), -1)
 
             # Map right eye to screen coordinates
             r_dx = (r_cx - 0.5) * self.sensitivity
