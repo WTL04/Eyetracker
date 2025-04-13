@@ -2,6 +2,12 @@ import cv2
 import dlib as dl
 import numpy as np
 
+import pyautogui
+pyautogui.FAILSAFE = False
+screen_w, screen_h = pyautogui.size() # init screen size
+prev_x, prev_y = screen_w // 2, screen_h // 2 # init previous x and y for smooth cursor position
+
+
 # gives 68 facial
 # left eye: 42-47
 # right eye: 36-41 
@@ -99,7 +105,6 @@ def get_head_direction(landmarks, frame):
     if pitch > 90:
         pitch -= 180
 
-
     # Label the head direction
     if yaw < -15:
         hor_direction = "Looking LEFT"
@@ -115,9 +120,38 @@ def get_head_direction(landmarks, frame):
     else:
         ver_direction = "Looking CENTER"
 
-        
+    cursor_control(yaw, pitch)
 
     print(f"Horizontal: {hor_direction} Vertical: {ver_direction} (yaw={yaw:.2f}) (pitch={pitch:.2f})")
+
+def cursor_control(yaw, pitch):
+    global prev_x, prev_y
+
+    screen_w, screen_h = pyautogui.size()
+    
+    # map coordinates to yaw and pitch    
+    clamped_yaw = max(-20, min(30, yaw))
+    norm_yaw = (clamped_yaw + 30) / 60
+    target_x = int(screen_w * norm_yaw)
+
+    clamped_pitch = max(-25, min(-5, pitch))
+    norm_pitch = (clamped_pitch + 25) / 20
+    target_y = int(screen_h * norm_pitch)
+
+    # keep cursor stay on screen
+    target_x = max(0, min(screen_w - 1, target_x))
+    target_y = max(0, min(screen_h - 1, target_y))
+
+    
+    # smooth movement
+    alpha = 0.3  # Smoothing factor (lower = smoother)
+    smoothed_x = int(prev_x + alpha * (target_x - prev_x))
+    smoothed_y = int(prev_y + alpha * (target_y - prev_y))
+
+    pyautogui.moveTo(smoothed_x, smoothed_y)
+
+    # update prev position
+    prev_x, prev_y = smoothed_x, smoothed_y
 
 
 
