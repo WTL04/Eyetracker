@@ -1,6 +1,7 @@
 import cv2
 import customtkinter as ct
 import tkinter as tk
+from tkinter import font
 from tkinter import messagebox, font
 from PIL import Image, ImageTk, ImageSequence
 from voice import VoiceController  # <- your refactored voice class
@@ -10,7 +11,7 @@ import pyautogui
 # === GUI Setup ===
 root = ct.CTk()
 root.title("Mind=Controlled")
-root.geometry('700x800')
+root.geometry('750x950')
 ct.set_appearance_mode("dark")
 ct.set_default_color_theme("./custom_theme.json")
 
@@ -18,9 +19,9 @@ ct.set_default_color_theme("./custom_theme.json")
 mic_status_label = ct.CTkLabel(root, text="Voice: Listening...", font=("Noto Sans", 14), text_color="green")
 mic_status_label.place(x=25, y=960)
 
-command_log = ct.CTkTextbox(root, width=400, height=700)
-command_log.place(x=450, y=350)
-command_log.insert("0.0", "Command Log\n ---------------------\n")
+command_log = ct.CTkTextbox(root, width=380, height=580, fg_color="black", text_color="lime")
+command_log.place(x=340, y=350)
+command_log.insert("0.0", "Command Log\n-------------------------------------------------------------------------------------------\n")
 command_log.configure(state="disabled")
 
 # === Voice Handlers ===
@@ -189,7 +190,7 @@ class AnimatedGIF(ct.CTkLabel):
         self.after(100, self.animate)
 
 # === Initialize Head Tracker ===
-head_feed = HeadTrackerFeed(master=root, width=350, height=300)
+head_feed = HeadTrackerFeed(master=root, width=380, height=300)
 head_feed.place(x=340, y=25)
 
 # === Info Text ===
@@ -211,13 +212,14 @@ alientalk = ct.CTkLabel(
         '• "Stop Typing": exits typing mode'
     ),
     width=300,
-    height=200,
+    height=380,
     fg_color="#333333",
     text_color="white",
     font=("Noto Sans", 14),
     corner_radius=12,
     anchor="w",
-    justify="left"
+    justify="left",
+    wraplength=300
 )
 alientalk.place(x=25, y=550)
 
