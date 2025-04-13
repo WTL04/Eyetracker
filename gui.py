@@ -8,14 +8,14 @@ from voice import VoiceController  # <- your refactored voice class
 from head_track import HeadTracker
 import pyautogui
 
-# === GUI Setup ===
+# GUI Setup
 root = ct.CTk()
 root.title("Mind=Controlled")
 root.geometry('750x950')
 ct.set_appearance_mode("dark")
 ct.set_default_color_theme("./custom_theme.json")
 
-# === Voice UI Feedback ===
+# Voice UI Feedback 
 mic_status_label = ct.CTkLabel(root, text="Voice: Listening...", font=("Noto Sans", 14), text_color="green")
 mic_status_label.place(x=25, y=960)
 
@@ -128,7 +128,7 @@ def shutdown_app():
     no_btn.place(relx=0.55, rely=0.4, relwidth=0.35, relheight=0.4)
 
 
-# === Voice Controller ===
+# Voice Controller
 voice = VoiceController()
 voice.on_command = handle_voice_command
 voice.on_shutdown = shutdown_app
@@ -137,7 +137,7 @@ voice.on_show = show_app
 voice.on_text = open_text
 voice.start()  # Automatically start voice control
 
-# === HeadTracker Feed Widget ===
+# HeadTracker Feed Widget
 class HeadTrackerFeed(ct.CTkLabel):
     def __init__(self, master, width=400, height=300):
         super().__init__(master)
@@ -168,7 +168,7 @@ class HeadTrackerFeed(ct.CTkLabel):
     def stop(self):
         self.tracker.release()
 
-# === GIF Animation ===
+# GIF Animation
 class AnimatedGIF(ct.CTkLabel):
     def __init__(self, master, gif_path, size):
         self.frames = []
@@ -189,11 +189,11 @@ class AnimatedGIF(ct.CTkLabel):
         self.configure(image=self.frames[self.index])
         self.after(100, self.animate)
 
-# === Initialize Head Tracker ===
+# Initialize Head Tracker
 head_feed = HeadTrackerFeed(master=root, width=380, height=300)
 head_feed.place(x=340, y=25)
 
-# === Info Text ===
+# Info Text
 alientalk = tk.Text(
     root,
     width=31,
@@ -239,5 +239,5 @@ alientalk.configure(state="disabled")
 gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(300, 300))
 gif_label.place(x=25, y=25)
 
-# === Launch GUI ===
+# Launch GUI
 root.mainloop()

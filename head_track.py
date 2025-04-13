@@ -88,8 +88,7 @@ class HeadTracker:
             if pitch > 90:
                 pitch -= 180
             
-            # debug
-            # self.cursor_control(yaw, pitch)
+            self.cursor_control(yaw, pitch)
 
         return frame
 
