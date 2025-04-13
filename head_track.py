@@ -87,8 +87,9 @@ class HeadTracker:
 
             if pitch > 90:
                 pitch -= 180
-
-            self.cursor_control(yaw, pitch)
+            
+            # debug
+            # self.cursor_control(yaw, pitch)
 
         return frame
 
@@ -119,29 +120,3 @@ class HeadTracker:
 
     def release(self):
         self.cap.release()
-# =============================================================================
-#                           Eye tracking! Yippie
-# =============================================================================
-
-"""
-def midpoint(p1, p2):
-    return int((p1.x + p2.x) / 2), int((p1.y + p2.y) / 2)
-
-def get_eye(landmarks, frame):
-
-    # drawing lines on eyeball
-    left_point = landmarks.part(36).x, landmarks.part(36).y
-    right_point = landmarks.part(39).x, landmarks.part(39).y
-
-    top_point = midpoint(landmarks.part(37), landmarks.part(38))
-    bot_point = midpoint(landmarks.part(40), landmarks.part(41))
-
-    vert_line = cv2.line(frame, top_point, bot_point, (0, 0, 255), 1)
-    hor_line = cv2.line(frame, left_point, right_point, (0, 0, 255), 1)
-
-    # draw facial landmark
-    for i in range(0, 68):
-        x = landmarks.part(i).x
-        y = landmarks.part(i).y
-        cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
-"""

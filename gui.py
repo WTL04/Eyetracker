@@ -10,7 +10,7 @@ import pyautogui
 # === GUI Setup ===
 root = ct.CTk()
 root.title("Mind=Controlled")
-root.geometry('900x1000')
+root.geometry('700x800')
 ct.set_appearance_mode("dark")
 ct.set_default_color_theme("./custom_theme.json")
 
@@ -20,15 +20,18 @@ mic_status_label.place(x=25, y=960)
 
 command_log = ct.CTkTextbox(root, width=400, height=700)
 command_log.place(x=450, y=350)
-command_log.insert("0.0", "Command Log\n")
+command_log.insert("0.0", "Command Log\n ---------------------\n")
 command_log.configure(state="disabled")
 
 # === Voice Handlers ===
 def handle_voice_command(text):
-    command_log.configure(state="normal")
-    command_log.insert("end", f"{text}\n")
-    command_log.see("end")
-    command_log.configure(state="disabled")
+    voice_commands = ["click", "scroll up", "scroll down", "close window", "minimize window", "open box"]
+
+    if text in voice_commands:
+        command_log.configure(state="normal")
+        command_log.insert("end", f"> {text.upper()}\n")
+        command_log.see("end")
+        command_log.configure(state="disabled")
 
 def hide_app():
     root.iconify()
@@ -186,8 +189,8 @@ class AnimatedGIF(ct.CTkLabel):
         self.after(100, self.animate)
 
 # === Initialize Head Tracker ===
-head_feed = HeadTrackerFeed(master=root, width=400, height=300)
-head_feed.place(x=450, y=25)
+head_feed = HeadTrackerFeed(master=root, width=350, height=300)
+head_feed.place(x=340, y=25)
 
 # === Info Text ===
 alientalk = ct.CTkLabel(
@@ -198,26 +201,27 @@ alientalk = ct.CTkLabel(
         "with your MIND.\n\n"
         'You are now in control.\n\n'
         'Say commands like:\n'
-        '• "Click"\n'
+        '• "Click: basic mouse click"\n'
         '• "Scroll Down"\n'
         '• "Scroll Up"\n'
-        '• "Close Window"\n'
-        '• "Minimize Window"\n'
-        '• "Maximize Window"\n'
-        "to interact with your computer."
+        '• "Close Window: closes the app"\n'
+        '• "Minimize Window: hides app into task bar"\n'
+        '• "Maximize Window (not working rn)"\n\n'
+        'Click on a textbox and say what you want to type\n'
+        '• "Stop Typing": exits typing mode'
     ),
-    width=400,
-    height=330,
+    width=300,
+    height=200,
     fg_color="#333333",
     text_color="white",
-    font=("Noto Sans", 16),
+    font=("Noto Sans", 14),
     corner_radius=12,
     anchor="w",
     justify="left"
 )
-alientalk.place(x=25, y=650)
+alientalk.place(x=25, y=550)
 
-gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(400, 600))
+gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(300, 500))
 gif_label.place(x=25, y=25)
 
 # === Launch GUI ===
