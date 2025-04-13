@@ -194,36 +194,49 @@ head_feed = HeadTrackerFeed(master=root, width=380, height=300)
 head_feed.place(x=340, y=25)
 
 # === Info Text ===
-alientalk = ct.CTkLabel(
-    master=root,
-    text=(
-        "Yo, I'm the locked-in alien.\n\n"
-        "I’m about to give you powers to control your computer\n"
-        "with your MIND.\n\n"
-        'You are now in control.\n\n'
-        'Say commands like:\n'
-        '• "Click: basic mouse click"\n'
-        '• "Scroll Down"\n'
-        '• "Scroll Up"\n'
-        '• "Close Window: closes the app"\n'
-        '• "Minimize Window: hides app into task bar"\n'
-        '• "Maximize Window (not working rn)"\n\n'
-        'Click on a textbox and say what you want to type\n'
-        '• "Stop Typing": exits typing mode'
-    ),
-    width=300,
-    height=380,
-    fg_color="#333333",
-    text_color="white",
-    font=("Noto Sans", 14),
-    corner_radius=12,
-    anchor="w",
-    justify="left",
-    wraplength=300
+alientalk = tk.Text(
+    root,
+    width=31,
+    height=33,
+    bg="#333333",
+    fg="white",
+    font=("Noto Sans", 12),
+    wrap="word",
+    padx=10,
+    pady=10,
+    relief="flat",
+    bd=0
 )
-alientalk.place(x=25, y=550)
+alientalk.place(x=25, y=350)
+alientalk.tag_configure("bold", font=("Noto Sans", 14, "bold"))
 
-gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(300, 500))
+# Insert text with bold tags
+alientalk.insert("end", "Yo, ", "bold")
+alientalk.insert("end", "I'm the locked-in alien.\n\n", "bold")
+alientalk.insert("end", "I’m about to give you powers to control your computer\nwith your MIND.\n\n")
+alientalk.insert("end", "You are now in control.\n\n")
+
+alientalk.insert("end", "Move your cursor with your head.\n\n", "bold")
+
+alientalk.insert("end", "Say commands like:\n")
+alientalk.insert("end", '• "Click: ', "bold")
+alientalk.insert("end", "basic mouse click\"\n")
+alientalk.insert("end", '• "Scroll Down"\n', "bold")
+alientalk.insert("end", '• "Scroll Up"\n', "bold")
+alientalk.insert("end", '• "Close Window: ', "bold")
+alientalk.insert("end", "closes the app\"\n")
+alientalk.insert("end", '• "Minimize Window: ', "bold")
+alientalk.insert("end", "hides app into task bar\"\n")
+alientalk.insert("end", '• "Maximize Window (not working rn)"\n\n', "bold")
+
+alientalk.insert("end", "Click on a textbox and say what you want to type\n")
+alientalk.insert("end", '• "Stop Typing": ', "bold")
+alientalk.insert("end", "exits typing mode")
+
+alientalk.configure(state="disabled")
+
+
+gif_label = AnimatedGIF(root, "./images/lockedin.gif", size=(300, 300))
 gif_label.place(x=25, y=25)
 
 # === Launch GUI ===
