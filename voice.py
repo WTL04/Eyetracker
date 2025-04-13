@@ -41,24 +41,20 @@ class VoiceController:
 
     def _handle_command(self, text):
         text = text.lower()
+        if self.on_command:
+            self.on_command(text)
 
         if "click" in text:
             pyautogui.click()
-            print("CLICK command executed")
-
         elif "scroll up" in text:
             pyautogui.scroll(10)
-            print("Scrolling up")
-
         elif "scroll down" in text:
             pyautogui.scroll(-10)
-            print("Scrolling down")
-
-        elif "slow" in text:
-            print("SLOW mode command detected")
-
         elif "close app" in text:
-            print("Close app command received")
+            print("CLOSE APP command received")
+            if self.on_shutdown:
+                self.on_shutdown()
+
 
     def start(self):
         if not self.running:
@@ -70,6 +66,7 @@ class VoiceController:
     def stop(self):
         self.running = False
         print("[VoiceController] Stop signal sent.")
+
 
     def is_running(self):
         return self.running

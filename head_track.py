@@ -10,8 +10,6 @@ prev_x, prev_y = screen_w // 2, screen_h // 2 # init previous x and y for smooth
 
 from collections import deque
 
-from voice import start_voice_commands
-
 # deque containing the previous position history
 # calcuate average of recent positions -> smoother movement
 position_history_x = deque(maxlen=5)  

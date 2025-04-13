@@ -68,13 +68,18 @@ ct.set_default_color_theme("./custom_theme.json")
 # set up camera 
 head_feed = HeadTrackerFeed(master=root, width=400, height=300)
 
+# set up voice 
+voice_feed = VoiceController()
+
 # button event "Start MindControlling"
 def toggle_mind_control():
     is_tracking = head_feed.toggle_tracking()
     if is_tracking:
-        button1.configure(text="Stop MindControlling")
+        button1.configure(text="Stop MindControlling", fg_color="#FF0000" )
+        voice_feed.start()
     else:
         button1.configure(text="Start MindControlling")
+        voice_feed.stop()
 
 
 # setting widget components
