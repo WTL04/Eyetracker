@@ -1,0 +1,19 @@
+# venv
+venv/
+
+# ML models
+models/
+*.tflite
+*.pb
+*.onnx
+*.h5
+*.pt
+*.pth
+*.npy
+*.zip
+*.tar.gz
+
+# Python junk
+__pycache__/
+*.pyc
+
