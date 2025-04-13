@@ -4,8 +4,16 @@ import numpy as np
 
 import pyautogui
 pyautogui.FAILSAFE = False
+pyautogui.PAUSE = 0
 screen_w, screen_h = pyautogui.size() # init screen size
 prev_x, prev_y = screen_w // 2, screen_h // 2 # init previous x and y for smooth cursor position
+
+from collections import deque
+
+# deque containing the previous position history
+# calcuate average of recent positions -> smoother movement
+position_history_x = deque(maxlen=5)  
+position_history_y = deque(maxlen=5)
 
 
 # gives 68 facial
@@ -126,7 +134,7 @@ def get_head_direction(detector, frame):
 
         # print(f"Horizontal: {hor_direction} Vertical: {ver_direction} (yaw={yaw:.2f}) (pitch={pitch:.2f})")
 
-def cursor_control(yaw, pitch, alpha=0.8, threshold=5):
+def cursor_control(yaw, pitch, alpha=0.6, threshold=10):
     global prev_x, prev_y
 
     # Clamp yaw/pitch to usable range
@@ -145,10 +153,19 @@ def cursor_control(yaw, pitch, alpha=0.8, threshold=5):
     smoothed_x = int(prev_x + alpha * (target_x - prev_x))
     smoothed_y = int(prev_y + alpha * (target_y - prev_y))
 
+    # Load into position history deques
+    position_history_x.append(smoothed_x)
+    position_history_y.append(smoothed_y)
+
+    # Get average of previous positions 
+    avg_x = int(sum(position_history_x) / len(position_history_x))
+    avg_y = int(sum(position_history_y) / len(position_history_y))
+
+
     # add a threshold to detect movment, lessen jittery jumps
     if abs(smoothed_x - prev_x) > threshold or abs(smoothed_y - prev_y) > threshold:
-        pyautogui.moveTo(smoothed_x, smoothed_y)
-        prev_x, prev_y = smoothed_x, smoothed_y
+        pyautogui.moveTo(avg_x, avg_y)
+        prev_x, prev_y = avg_x, avg_y
 
 
 
@@ -158,7 +175,7 @@ while True:
         break
 
     get_head_direction(detector, frame)
-    # cv2.imshow("Head + Eye Tracking", frame)
+    cv2.imshow("Head + Eye Tracking", frame)
 
 
     if cv2.waitKey(1) & 0xFF == ord('q'):

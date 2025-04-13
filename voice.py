@@ -3,7 +3,6 @@ import queue
 import json
 from vosk import Model, KaldiRecognizer
 
-# Setup
 model = Model("./vosk-model-small-en-us-0.15/")  # path to your Vosk model
 recognizer = KaldiRecognizer(model, 48000)
 audio_q = queue.Queue()
