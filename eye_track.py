@@ -12,55 +12,39 @@ cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     raise IOError("Cannot open webcam")
 
-def get_left_eye(landmarks, frame):
-    # get left eye coords from dlib face mapping
-    x_list = [landmarks.part(i).x for i in range(36, 42)]
-    y_list = [landmarks.part(i).y for i in range(36, 42)]
+def midpoint(p1, p2):
+    return int((p1.x + p2.x) / 2), int((p1.y + p2.y) / 2)
 
-    # bounding box around left eye
-    x_min, x_max = min(x_list), max(x_list)
-    y_min, y_max = min(y_list), max(y_list)
-    
-    # add padding
-    padding = 5
-    x_min = max(x_min - padding, 0)
-    y_min = max(y_min - padding, 0)
-    x_max = min(x_max + padding, frame.shape[1])
-    y_max = min(y_max + padding, frame.shape[0])
-
-    # crop left eye and show
-    left_eye = frame[y_min:y_max, x_min:x_max]
-    resized_eye = cv2.resize(left_eye, None, fx=4, fy=4, interpolation=cv2.INTER_LINEAR)
-    cv2.imshow('Left Eye', resized_eye)
-
-
-def get_face(detector, frame):
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) # convert into grayscale
+def get_eye(detector, frame):
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = detector(gray)
 
     for face in faces:
         landmarks = predictor(gray, face)
 
-        for i in range(0, 68):
-            x = landmarks.part(i).x
-            y = landmarks.part(i).y
-            # draw bouding circle around eyes
-            cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
-       
-        # crop out left eye
-        get_left_eye(landmarks, frame)
+        left_point = landmarks.part(36).x, landmarks.part(36).y
+        right_point = landmarks.part(39).x, landmarks.part(39).y
+
+        top_point = midpoint(landmarks.part(37), landmarks.part(38))
+        bot_point = midpoint(landmarks.part(40), landmarks.part(41))
+
+        # vert_line = cv2.line(frame, top_point, bot_point, (0, 0, 255), 1)
+        # hor_line = cv2.line(frame, left_point, right_point, (0, 0, 255), 1)
+
+        vert_line = cv2.circle(frame, top_point, bot_point, 2, (0, 0, 255), 1)
+        hor_line = cv2.line(frame, left_point, right_point, (0, 0, 255), 1)
 
 
 
-while (True):
+    cv2.imshow("Eyeball", frame)
+
+while True:
     ret, frame = cap.read()
     if not ret:
         break
 
-    # get facial features     
-    get_face(detector, frame)
-    
-    # press q to exit 
+    get_eye(detector, frame)
+
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
