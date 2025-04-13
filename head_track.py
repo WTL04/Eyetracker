@@ -28,6 +28,11 @@ class HeadTracker:
     def __init__(self):
         self.cap = cv2.VideoCapture(0)
 
+    def reg_cap(self):
+        ret, frame = self.cap.read()
+        if not ret:
+            return None
+
     def get_head_direction(self):
         ret, frame = self.cap.read()
         if not ret:

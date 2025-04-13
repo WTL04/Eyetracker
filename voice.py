@@ -3,67 +3,75 @@ import queue
 import json
 import pyautogui
 import signal
-import sys
+import threading
 from vosk import Model, KaldiRecognizer
 
-# Global flag for running
-running = True
 
-# Shutdown handler
-def handle_exit(sig, frame):
-    global running
-    print("Shutting down voice command listener...")
-    running = False
+class VoiceController:
+    def __init__(self, model_path="./models/vosk-model-small-en-us-0.15/", device=None):
+        self.model = Model(model_path)
+        self.recognizer = KaldiRecognizer(self.model, 48000)
+        self.audio_q = queue.Queue()
+        self.running = False
+        self.device = 11  # earphone mic
 
-# Register signal handlers
-signal.signal(signal.SIGINT, handle_exit)
-signal.signal(signal.SIGTERM, handle_exit)
-
-# Vosk setup
-model = Model("./models/vosk-model-small-en-us-0.15/")
-recognizer = KaldiRecognizer(model, 48000)
-audio_q = queue.Queue()
-
-def start_voice_commands():
-    def callback(indata, frames, time, status):
+    def _callback(self, indata, frames, time, status):
         if status:
-            print(status)
-        audio_q.put(bytes(indata))
+            print(f"[VoiceController] Input status: {status}")
+        self.audio_q.put(bytes(indata))
 
-    with sd.RawInputStream(samplerate=48000, blocksize=8000, dtype='int16',
-                           channels=1, device=11, callback=callback):
-        print("Say something (Ctrl+C to quit)")
+    def _listen_loop(self):
+        print("[VoiceController] Listening for voice commands... (say 'click', 'scroll up', etc.)")
 
-        while running:
-            try:
-                data = audio_q.get(timeout=1)
-            except queue.Empty:
-                continue
+        with sd.RawInputStream(samplerate=48000, blocksize=8000, dtype='int16',
+                               channels=1, device=self.device, callback=self._callback):
+            while self.running:
+                try:
+                    data = self.audio_q.get(timeout=1)
+                except queue.Empty:
+                    continue
 
-            if recognizer.AcceptWaveform(data):
-                result = recognizer.Result()
-                text = json.loads(result)["text"]
-                print(f"You said: {text}")
+                if self.recognizer.AcceptWaveform(data):
+                    result = self.recognizer.Result()
+                    text = json.loads(result)["text"]
+                    print(f"[VoiceController] Heard: {text}")
+                    self._handle_command(text)
 
-                # Handle voice commands
-                if "click" in text:
-                    pyautogui.click()
-                    print("CLICK command detected!")
+        print("[VoiceController] Voice command listener stopped.")
 
-                if "slow" in text:
-                    print("SLOW command detected")
+    def _handle_command(self, text):
+        text = text.lower()
 
-                if "scroll up" in text:
-                    pyautogui.scroll(11)
-                    print("Scrolling up")
+        if "click" in text:
+            pyautogui.click()
+            print("CLICK command executed")
 
-                if "scroll down" in text:
-                    pyautogui.scroll(-9)
-                    print("Scrolling down")
+        elif "scroll up" in text:
+            pyautogui.scroll(10)
+            print("Scrolling up")
 
-    print("Voice command listener stopped.")
+        elif "scroll down" in text:
+            pyautogui.scroll(-10)
+            print("Scrolling down")
 
-if __name__ == "__main__":
-    start_voice_commands()
+        elif "slow" in text:
+            print("SLOW mode command detected")
+
+        elif "close app" in text:
+            print("Close app command received")
+
+    def start(self):
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._listen_loop, daemon=True)
+            self.thread.start()
+            print("[VoiceController] Started voice command thread.")
+
+    def stop(self):
+        self.running = False
+        print("[VoiceController] Stop signal sent.")
+
+    def is_running(self):
+        return self.running
 
 

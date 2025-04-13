@@ -2,7 +2,8 @@ from tkinter import *
 import customtkinter as ct
 from PIL import Image, ImageTk, ImageSequence
 import cv2
-from head_tracker import HeadTracker
+from head_track import HeadTracker
+from voice import VoiceController
 
 # WHAT THE FLIP IS THIS
 class AnimatedGIF(ct.CTkLabel):
@@ -29,13 +30,19 @@ class AnimatedGIF(ct.CTkLabel):
 class HeadTrackerFeed(ct.CTkLabel):
     def __init__(self, master, width=400, height=300):
         super().__init__(master)
-        self.tracker = HeadTracker()
+        self.tracker = HeadTracker() # add HeadTracker into this file
         self.width = width
         self.height = height
-        self.update_frame()
+        self.use_tracking = False 
+        self.update_feed()
 
-    def update_frame(self):
-        frame = self.tracker.get_frame()
+
+    def update_feed(self):
+        if self.use_tracking:
+            frame = self.tracker.get_head_direction()
+        else:
+            frame = self.tracker.cap.read()[1]  # regular frame
+
         if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame = cv2.resize(frame, (self.width, self.height))
@@ -43,30 +50,50 @@ class HeadTrackerFeed(ct.CTkLabel):
             imgtk = ImageTk.PhotoImage(image=image)
             self.configure(image=imgtk)
             self.imgtk = imgtk
+        self.after(15, self.update_feed)
 
-        self.after(15, self.update_frame)
+    def toggle_tracking(self):
+        self.use_tracking = not self.use_tracking
+        return self.use_tracking 
+
+    def stop(self):
+        self.tracker.release()
+
 # set up layout of app
 root = ct.CTk()
-root.geometry('900x1000')
+root.geometry('880x1000')
 ct.set_appearance_mode("dark")
 ct.set_default_color_theme("./custom_theme.json")
 
 # set up camera 
-viewer = WebcamViewer(root)
+head_feed = HeadTrackerFeed(master=root, width=400, height=300)
+
+# button event "Start MindControlling"
+def toggle_mind_control():
+    is_tracking = head_feed.toggle_tracking()
+    if is_tracking:
+        button1.configure(text="Stop MindControlling")
+    else:
+        button1.configure(text="Start MindControlling")
+
 
 # setting widget components
 button1 = ct.CTkButton(
     master=root,
-    width=50,
+    width=200,
     height=80,
     text="Start MindControlling",
     font=("Noto Sans", 16),
     corner_radius=8,
     anchor="center"
     )
+
+button1.configure(command=toggle_mind_control)
+
+
 button2 =  ct.CTkButton(
     master=root,
-    width=170,
+    width=200,
     height=80,
     text="Hide Me",
     font=("Noto Sans", 16), 
@@ -104,11 +131,12 @@ gif_label.pack(pady=20)
 
 
 # placing widgets
-button1.place(x=500, y=900)
-button2.place(x=700, y=900)
+button1.place(x=450, y=900)
+button2.place(x=670, y=900)
 gif_label.place(x=25, y=25)
 alientalk.place(x=25,y=650)
-viewer.place(x=500,y=500)
+head_feed.place(x=450,y=25)
+
 
 root.mainloop()
 
