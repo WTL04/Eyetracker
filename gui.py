@@ -2,6 +2,7 @@ from tkinter import *
 import customtkinter as ct
 from PIL import Image, ImageTk, ImageSequence
 import cv2
+from head_tracker import HeadTracker
 
 # WHAT THE FLIP IS THIS
 class AnimatedGIF(ct.CTkLabel):
@@ -25,26 +26,25 @@ class AnimatedGIF(ct.CTkLabel):
         self.configure(image=self.frames[self.index])
         self.after(100, self.animate)
 
-# enable webcam
-class WebcamViewer(ct.CTkLabel):
-    def __init__(self, master):
+class HeadTrackerFeed(ct.CTkLabel):
+    def __init__(self, master, width=400, height=300):
         super().__init__(master)
-        self.cap = cv2.VideoCapture(0)
+        self.tracker = HeadTracker()
+        self.width = width
+        self.height = height
         self.update_frame()
 
     def update_frame(self):
-        ret, frame = self.cap.read()
-        if ret:
+        frame = self.tracker.get_frame()
+        if frame is not None:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame)
-            img = img.resize((320, 240))
-            imgtk = ImageTk.PhotoImage(image=img)
+            frame = cv2.resize(frame, (self.width, self.height))
+            image = Image.fromarray(frame)
+            imgtk = ImageTk.PhotoImage(image=image)
             self.configure(image=imgtk)
-            self.imgtk = imgtk  # prevent garbage collection
+            self.imgtk = imgtk
 
         self.after(15, self.update_frame)
-
-
 # set up layout of app
 root = ct.CTk()
 root.geometry('900x1000')
