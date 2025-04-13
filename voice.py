@@ -15,6 +15,13 @@ class VoiceController:
         self.running = False
         self.device = 11  # earphone mic
 
+        # GUI classbacks 
+
+        self.on_command = None
+        self.on_shutdown = None
+        self.on_hide = None
+        self.on_show = None
+
     def _callback(self, indata, frames, time, status):
         if status:
             print(f"[VoiceController] Input status: {status}")
@@ -41,6 +48,7 @@ class VoiceController:
 
     def _handle_command(self, text):
         text = text.lower()
+
         if self.on_command:
             self.on_command(text)
 
@@ -50,10 +58,12 @@ class VoiceController:
             pyautogui.scroll(10)
         elif "scroll down" in text:
             pyautogui.scroll(-10)
-        elif "close app" in text:
-            print("CLOSE APP command received")
-            if self.on_shutdown:
-                self.on_shutdown()
+        elif "close window" in text and self.on_shutdown:
+            self.on_shutdown()
+        elif "minimize window" in text and self.on_hide:
+            self.on_hide()
+        elif "maximize window" in text and self.on_show:
+            self.on_show()
 
 
     def start(self):
