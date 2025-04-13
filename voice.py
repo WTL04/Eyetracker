@@ -84,6 +84,10 @@ class VoiceController:
             print("[VoiceController] Voice command to open text triggered.")
             if self.on_text:
                 self.on_text()
+        elif "enter text" in text:
+            pyautogui.hotKey("enter")
+        elif "delete word" in text:
+            pyautogui.hotKey("ctrl", "backspace")
 
     def start_typing_mode(self, insert_callback, close_callback):
         print("[VoiceController] Entered typing mode.")

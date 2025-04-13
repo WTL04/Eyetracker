@@ -149,7 +149,7 @@ class HeadTrackerFeed(ct.CTkLabel):
 
     def update_feed(self):
         if self.use_tracking:
-            frame = self.tracker.get_head_direction()
+            frame = self.tracker.process_frame()
         else:
             ret, frame = self.tracker.cap.read()
             if not ret:
@@ -167,6 +167,7 @@ class HeadTrackerFeed(ct.CTkLabel):
 
     def stop(self):
         self.tracker.release()
+
 
 # GIF Animation
 class AnimatedGIF(ct.CTkLabel):
