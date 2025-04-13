@@ -1,10 +1,11 @@
+import cv2
 import customtkinter as ct
 import tkinter as tk
 from tkinter import messagebox, font
 from PIL import Image, ImageTk, ImageSequence
-import cv2
 from voice import VoiceController  # <- your refactored voice class
 from head_track import HeadTracker
+import pyautogui
 
 # === GUI Setup ===
 root = ct.CTk()
@@ -43,6 +44,38 @@ def show_app():
         root.geometry(root.geometry())  # Force geometry reset (sometimes helps in GNOME)
     except Exception as e:
         print(f"Failed to show app: {e}")
+
+def open_text():
+    print("[GUI] Opening voice dictation popup via voice command.")
+    
+    # Create popup and get callbacks
+    popup = tk.Toplevel(root)
+    popup.geometry("600x150+600+400")
+    popup.title("Voice Dictation")
+    popup.configure(bg="#222")
+
+    entry = tk.Text(popup, font=("Arial", 16), bg="#111", fg="white", insertbackground="white")
+    entry.pack(expand=True, fill="both", padx=10, pady=10)
+
+    def insert_text(text):
+        entry.insert("end", text + " ")
+        entry.see("end")
+        entry.update()
+
+    def on_close():
+        global voice
+        text = entry.get("1.0", "end").strip()
+        popup.destroy()
+        if text:
+            pyautogui.write(text, interval=0.05)
+        print("[GUI] Dictation popup closed.")
+
+    popup.protocol("WM_DELETE_WINDOW", on_close)
+
+    # Pass to voice controller
+    voice.start_typing_mode(insert_text, on_close)
+
+    
 
 
 def shutdown_app():
@@ -97,6 +130,7 @@ voice.on_command = handle_voice_command
 voice.on_shutdown = shutdown_app
 voice.on_hide = hide_app
 voice.on_show = show_app
+voice.on_text = open_text
 voice.start()  # Automatically start voice control
 
 # === HeadTracker Feed Widget ===
