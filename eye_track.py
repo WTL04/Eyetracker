@@ -33,7 +33,7 @@ def get_eye(detector, frame):
     for face in faces:
         landmarks = predictor(gray, face)
         
-        # debug
+        # get face tracking
         get_head_direction(landmarks, frame)
 
         
@@ -46,7 +46,14 @@ def get_eye(detector, frame):
 
         vert_line = cv2.line(frame, top_point, bot_point, (0, 0, 255), 1)
         hor_line = cv2.line(frame, left_point, right_point, (0, 0, 255), 1)
-        
+
+        # draw facial landmark
+        for i in range(0, 68):
+            x = landmarks.part(i).x
+            y = landmarks.part(i).y
+            cv2.circle(frame, (x, y), 2, (0, 255, 0), -1)
+
+
         # cropping left eye out
         # x_list = [landmarks.part(i).x for i in range(36, 42)]
         # y_list = [landmarks.part(i).y for i in range(36, 42)]
@@ -124,34 +131,48 @@ def get_head_direction(landmarks, frame):
 
     print(f"Horizontal: {hor_direction} Vertical: {ver_direction} (yaw={yaw:.2f}) (pitch={pitch:.2f})")
 
-def cursor_control(yaw, pitch):
+def cursor_control(yaw, pitch, alpha=0.6, threshold=5):
+    """
+    Converts head yaw/pitch into smoothed screen cursor position.
+
+    yaw: horizontal head angle (-30 = left, +30 = right)
+    pitch: vertical head angle (-20 = up, 0 = down)
+    alpha: smoothing factor (0.1 = slow/smooth, 1 = instant jump)
+    """
+
     global prev_x, prev_y
 
-    screen_w, screen_h = pyautogui.size()
-    
-    # map coordinates to yaw and pitch    
-    clamped_yaw = max(-20, min(30, yaw))
-    norm_yaw = (clamped_yaw + 30) / 60
-    target_x = int(screen_w * norm_yaw)
+    # Clamp yaw/pitch to usable range
+    clamped_yaw = max(-30, min(30, yaw))
+    clamped_pitch = max(-20, min(0, pitch))
 
-    clamped_pitch = max(-25, min(-5, pitch))
-    norm_pitch = (clamped_pitch + 25) / 20
-    target_y = int(screen_h * norm_pitch)
+    # Normalize to [0, 1]
+    norm_yaw = (clamped_yaw + 30) / 60      # -30 to +30 → 0 to 1
+    norm_pitch = (clamped_pitch + 20) / 20  # -20 to 0 → 0 to 1
 
-    # keep cursor stay on screen
-    target_x = max(0, min(screen_w - 1, target_x))
-    target_y = max(0, min(screen_h - 1, target_y))
+    # Convert to screen coordinates
+    target_x = int(norm_yaw * screen_w)
+    target_y = int(norm_pitch * screen_h)
 
-    
-    # smooth movement
-    alpha = 0.3  # Smoothing factor (lower = smoother)
+    # Smooth cursor motion
     smoothed_x = int(prev_x + alpha * (target_x - prev_x))
     smoothed_y = int(prev_y + alpha * (target_y - prev_y))
 
+    # Move the mouse
+    pyautogui.moveTo(smoothed_x, smoothed_y)
+
+    # Update previous position
+    prev_x, prev_y = smoothed_x, smoothed_y
     pyautogui.moveTo(smoothed_x, smoothed_y)
 
     # update prev position
     prev_x, prev_y = smoothed_x, smoothed_y
+    
+
+    # add a threshold to detect movment
+    if abs(smoothed_x - prev_x) > threshold or abs(smoothed_y - prev_y) > threshold:
+        pyautogui.moveTo(smoothed_x, smoothed_y)
+        prev_x, prev_y = smoothed_x, smoothed_y
 
 
 
@@ -162,6 +183,9 @@ while True:
 
     get_eye(detector, frame)
     cv2.imshow("Head + Eye Tracking", frame)
+
+
+    cap.get(cv2.CAP_PROP_FPS)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
