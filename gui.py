@@ -13,7 +13,6 @@ root = ct.CTk()
 root.title("Mind=Controlled")
 root.geometry('750x950')
 ct.set_appearance_mode("dark")
-ct.set_default_color_theme("./custom_theme.json")
 
 # Voice UI Feedback 
 mic_status_label = ct.CTkLabel(root, text="Voice: Listening...", font=("Noto Sans", 14), text_color="green")
