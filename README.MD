@@ -37,8 +37,7 @@ To run this project, install it locally using npm:
     $ pip install -r requirements.txt
 ```
 
+Run the program using:
 ```
-    Run the program using:
-
     $ python gui.py
 ```
