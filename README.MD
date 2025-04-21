@@ -29,16 +29,16 @@ Built with MediaPipe, Vosk, and CustomTkinter, it combines real-time gaze-based 
   * SpeechRecognition
   
 ## Setup
-    To run this project, install it locally using npm:
+To run this project, install it locally using npm:
 
-    ```
+```
     $ git clone https://github.com/WTL04/Mind-Controlled.git MindControlled
     $ cd MindControlled
     $ pip install -r requirements.txt
-    ```
+```
 
-    ```
+```
     Run the program using:
 
     $ python gui.py
-    ```
+```
